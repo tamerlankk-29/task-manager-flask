@@ -2,10 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import os
 
-# Create a Flask application instance
 app = Flask(__name__)
 
-# Define the filename for storing the task list
 TASKS_FILE = "tasks.json"
 
 
@@ -36,12 +34,12 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_task():
     """Adds a new task received from the form."""
-    title = request.form.get("title")  # Get the task title from the form
+    title = request.form.get("title")
     if title:
-        new_task = {"id": len(tasks) + 1, "title": title, "status": "Новая"}  # Create a new task
-        tasks.append(new_task)  # Add it to the list
-        save_tasks(tasks)  # Save the updated task list
-    return redirect(url_for("index"))  # Redirect to the main page
+        new_task = {"id": len(tasks) + 1, "title": title, "status": "Новая"}
+        tasks.append(new_task)
+        save_tasks(tasks)
+    return redirect(url_for("index"))
 
 
 @app.route('/edit/<int:task_id>', methods=['POST'])
@@ -49,30 +47,29 @@ def edit_task(task_id):
     """Edits a task with the specified ID."""
     for task in tasks:
         if task["id"] == task_id:
-            task["title"] = request.form.get("title", task["title"])  # Update the title if provided
-            task["status"] = request.form.get("status", task["status"])  # Update the status if provided
-            save_tasks(tasks)  # Save the changes
+            task["title"] = request.form.get("title", task["title"])
+            task["status"] = request.form.get("status", task["status"])
+            save_tasks(tasks)
             break
-    return redirect(url_for("index"))  # Redirect to the main page
+    return redirect(url_for("index"))
 
 
 @app.route('/delete/<int:task_id>')
 def delete_task(task_id):
     """Deletes a task with the specified ID."""
     global tasks
-    tasks = [task for task in tasks if task["id"] != task_id]  # Filter the task list, excluding the deleted task
-    save_tasks(tasks)  # Save the updated list
-    return redirect(url_for("index"))  # Redirect to the main page
+    tasks = [task for task in tasks if task["id"] != task_id]
+    save_tasks(tasks)
+    return redirect(url_for("index"))
 
 
 @app.route('/search', methods=['GET'])
 def search():
     """Searches for tasks based on the provided query."""
-    query = request.args.get("query", "").lower()  # Get the search query and convert it to lowercase
-    filtered_tasks = [task for task in tasks if query in task["title"].lower()]  # Filter tasks by title
-    return render_template("index.html", tasks=filtered_tasks)  # Display the search results
+    query = request.args.get("query", "").lower()
+    filtered_tasks = [task for task in tasks if query in task["title"].lower()]
+    return render_template("index.html", tasks=filtered_tasks)
 
 
 if __name__ == '__main__':
-    # Run the Flask server in debug mode
     app.run(debug=True)
